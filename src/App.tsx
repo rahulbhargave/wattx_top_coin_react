@@ -1,58 +1,70 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React from "react";
+import "./Sass/App.scss";
+import {
+  BrowserRouter,
+  Link,
+  Redirect,
+  Route,
+  RouteComponentProps,
+  Switch,
+} from "react-router-dom";
+import routes from "./config/routes";
+import { Container, Nav, Navbar } from "react-bootstrap";
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+      <Navbar bg="light" expand="lg">
+        <Container>
+          <Navbar.Brand href="#home">React-Bootstrap</Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="me-auto">
+              <Nav.Link as={Link} to="/home">Home</Nav.Link>
+              <Nav.Link as={Link} to="/liquidity">Liquidity</Nav.Link>
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
+        {/* <div>
+          <nav>
+            <ul>
+              <li>
+                <Link to="/home">Home</Link>
+              </li>
+              <li>
+                <Link to="/liquidity">Liquidity</Link>
+              </li>
+            </ul>
+          </nav> */}
+
+          <Switch>
+            {routes.map((route, index) => {
+              return (
+                <Route
+                  key={index}
+                  path={route.path}
+                  exact={route.exact}
+                  render={(props: RouteComponentProps<any>) =>
+                    route.redirect ? (
+                      <Redirect to="/home" />
+                    ) : (
+                      <route.component
+                        name={route.name}
+                        {...props}
+                        {...route.props}
+                      />
+                    )
+                  }
+                />
+              );
+            })}
+          </Switch>
+        {/* </div> */}
+      </BrowserRouter>
+    </>
   );
-}
+};
 
 export default App;
