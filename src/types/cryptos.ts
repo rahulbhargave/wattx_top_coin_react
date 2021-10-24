@@ -6,4 +6,8 @@ export interface Crypto {
     priceChange:number;
     marketCap:number;
     volume:number;
+    priceF:number;
+    priceChangeF:string;
+    marketCapF:number;
+    volumeF:number;
 }

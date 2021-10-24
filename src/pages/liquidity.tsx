@@ -1,95 +1,117 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
-import IPage from '../types/route';
-import ReactApexChart from 'react-apexcharts';
+import IPage from "../types/route";
+import ReactApexChart from "react-apexcharts";
+import { useSelector } from "react-redux";
+import { RootState } from "../app/store";
+import { Crypto } from "../types/cryptos";
+import { Col, Container, Row } from "react-bootstrap";
+import { ChartScale, Series } from "../types/chart";
 
-export interface ChartSeries{
-    name:string;
-    data:any;
-}
-const LiquidityPage: React.FC<IPage & RouteComponentProps<any>> = props =>{
-    const [series,setSeries] = useState([] as ChartSeries[]);
-    const [options,setOptions] = useState({});
+const LiquidityPage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
+  const [series, setSeries] = useState([] as Series[]);
+  const [options, setOptions] = useState({});
+  const [scale, setScale] = useState({} as ChartScale);
 
-    const generateData = (baseval:any, count:number, yrange:{min:number,max:number})=> {
-        var i = 0;
-        var series = [];
-        while (i < count) {
-          var x = Math.floor(Math.random() * (750 - 1 + 1)) + 1;;
-          var y = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-          var z = Math.floor(Math.random() * (75 - 15 + 1)) + 15;
-      
-          series.push([x, y, z]);
-          baseval += 86400000;
-          i++;
-        }
-        return series;
-      }
+  const cryptos: Array<Crypto> = useSelector(
+    (state: RootState) => state.cryptos
+  );
 
-    useEffect(() => {
-        setSeries([{
-            name: 'Product1',
-            data: generateData(new Date('11 Feb 2017 GMT').getTime(), 5, {
-              min: 10,
-              max: 60
-            })
-          },
-          {
-            name: 'Product2',
-            data: generateData(new Date('11 Feb 2017 GMT').getTime(), 5, {
-              min: 10,
-              max: 60
-            })
-          },
-          {
-            name: 'Product3',
-            data: generateData(new Date('11 Feb 2017 GMT').getTime(), 5, {
-              min: 10,
-              max: 60
-            })
-          },
-          {
-            name: 'Product4',
-            data: generateData(new Date('11 Feb 2017 GMT').getTime(), 5, {
-              min: 10,
-              max: 60
-            })
-          }]);
-        setOptions({
-            chart: {
-              height: 350,
-              type: 'bubble',
-            },
-            dataLabels: {
-              enabled: false
-            },
-            fill: {
-              type: 'gradient',
-            },
-            title: {
-              text: '3D Bubble Chart'
-            },
-            xaxis: {
-              tickAmount: 10,
-              type: 'category',
-            },
-            yaxis: {
-              max: 70
-            },
-            theme: {
-              palette: 'palette2'
-            }
-          });
-    }, [])
-    console.log(series);
-    return(
-        <>
-        <div>Liquidity Component</div>
-        <div id="chart">
-            <ReactApexChart options={options} series={series} type="bubble" height={350} />
-        </div>
-        </>
-    )
-}
+  const generateData = useCallback(() => {
+    const s: any = cryptos.map((item: Crypto, index: number) => {
+      const axises = [];
+      const { name, marketCap, volume, priceChange } = item;
+      axises.push([
+        Math.round((marketCap + Number.EPSILON) * 100) / 100000000000,
+        Math.round((volume + Number.EPSILON) * 100) / 1000000000,
+        Math.abs(Math.round((priceChange + Number.EPSILON) * 100) / 100),
+      ]);
+
+      return {
+        name: name,
+        data: [...axises],
+      };
+    });
+    return s;
+  }, [cryptos]);
+
+  const updateChartScale = (seriesData: any) => {
+    if (seriesData && seriesData.length > 0) {
+      let minData = seriesData[seriesData.length - 1].data[0];
+      let maxData = seriesData[0].data[0];
+
+      setScale({
+        x: { max: maxData[0] + 20, min: minData[0] },
+        y: { max: maxData[1], min: minData[1] },
+      });
+    }
+  };
+
+  useEffect(() => {
+    const seriesData = generateData();
+    updateChartScale(seriesData);
+    setSeries(seriesData);
+
+    setOptions({
+      chart: {
+        height: "auto",
+        type: "bubble",
+      },
+      dataLabels: {
+        enabled: false,
+      },
+      fill: {
+        type: "gradient",
+      },
+      xaxis: {
+        tickAmount: 15,
+        min: scale.x ? scale.x.min : 1,
+        max: scale.x ? scale.x.max : 1500,
+        type: "numeric",
+        forceNiceScale: true,
+        decimalsInFloat: 0,
+        labels: {
+          show: true,
+        },
+      },
+      yaxis: {
+        min: scale.y ? scale.y.min : 300,
+        max: scale.y ? scale.y.max : 2500,
+        forceNiceScale: true,
+        decimalsInFloat: 0,
+        labels: {
+          show: true,
+        },
+      },
+      theme: {
+        palette: "palette2",
+      },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [generateData, cryptos]);
+
+  return (
+    <>
+      <Container>
+        <Row>
+          <Col sm={10}>
+            {" "}
+            <h4>Crypto Currencies Liquidity Chart</h4>
+          </Col>
+        </Row>
+        <Row>
+          <div id="chart">
+            <ReactApexChart
+              options={options}
+              series={series}
+              type="bubble"
+              height={350}
+            />
+          </div>
+        </Row>
+      </Container>
+    </>
+  );
+};
 
 export default LiquidityPage;

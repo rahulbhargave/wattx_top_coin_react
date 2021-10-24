@@ -13,7 +13,7 @@ const HomePage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
     (state: RootState) => state.cryptos
   );
   const dispatch = useDispatch();
-
+  console.log(cryptos);
   useEffect(() => {
     dispatch(fetchCryptos());
   }, [dispatch]);
@@ -30,19 +30,19 @@ const HomePage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
       },
       {
         Header: "Price",
-        accessor: "price",
+        accessor: "priceF",
       },
       {
         Header: "Price Change (24h)",
-        accessor: "priceChange",
+        accessor: "priceChangeF",
       },
       {
         Header: "Market Cap",
-        accessor: "marketCap",
+        accessor: "marketCapF",
       },
       {
         Header: "Volume (24h)",
-        accessor: "volume",
+        accessor: "volumeF",
       },
     ],
     []
@@ -50,12 +50,15 @@ const HomePage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
 
   return (
     <>
-      <Container>
+      <Container data-testid="home">
         <Row>
-          <Col sm={10}> Home Component</Col>
+          <Col sm={10}>
+            {" "}
+            <h4 data-testid="heading">Leading Crypto Currencies in the market</h4>
+          </Col>
         </Row>
         <Row>
-          <CTable columns={columns} data={cryptos} />
+          <CTable data-testid="table" columns={columns} data={cryptos} />
         </Row>
       </Container>
     </>
