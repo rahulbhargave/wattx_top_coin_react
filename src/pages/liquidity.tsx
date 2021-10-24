@@ -5,10 +5,13 @@ import ReactApexChart from "react-apexcharts";
 import { useSelector } from "react-redux";
 import { RootState } from "../app/store";
 import { Crypto } from "../types/cryptos";
-import { Col, Container, Row } from "react-bootstrap";
+import { Col, Container, Row, Spinner } from "react-bootstrap";
 import { ChartScale, Series } from "../types/chart";
 
 const LiquidityPage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
+  const isLoading = useSelector((state: RootState) => state.spinner.loading);
+  const isError = useSelector((state: RootState) => state.spinner.error);
+
   const [series, setSeries] = useState([] as Series[]);
   const [options, setOptions] = useState({});
   const [scale, setScale] = useState({} as ChartScale);
@@ -100,14 +103,33 @@ const LiquidityPage: React.FC<IPage & RouteComponentProps<any>> = (props) => {
           </Col>
         </Row>
         <Row>
-          <div id="chart">
-            <ReactApexChart
-              options={options}
-              series={series}
-              type="bubble"
-              height={350}
-            />
-          </div>
+          {!isLoading && !isError && (
+            <div id="chart">
+              <ReactApexChart
+                options={options}
+                series={series}
+                type="bubble"
+                height={350}
+              />
+            </div>
+          )}
+          {isLoading && (
+            <Col sm={{ span: 2, offset: 6 }}>
+              <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+            </Col>
+          )}
+          {isError && (
+            <Col sm={{ span: 6, offset: 3 }}>
+              <Row>
+                <h6>
+                  Current subscription plan doesn't support this feature to view
+                  historical data.
+                </h6>
+              </Row>
+            </Col>
+          )}
         </Row>
       </Container>
     </>

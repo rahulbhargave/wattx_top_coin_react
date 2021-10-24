@@ -6,7 +6,7 @@ const Header:React.FC = ()=>{
     return(
         <Navbar bg="light" expand="lg">
         <Container>
-          <Navbar.Brand data-testid="header" href="#home">Crypto-Watch</Navbar.Brand>
+          <Navbar.Brand data-testid="header" href="/home">Crypto-Watch</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
